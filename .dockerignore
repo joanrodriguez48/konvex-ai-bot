@@ -3,3 +3,4 @@ node_modules
 *.log
 ingest-slack.js
 ingest-docs.js
+README.md
