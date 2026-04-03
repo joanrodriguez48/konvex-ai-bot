@@ -1,0 +1,186 @@
+[
+  {
+    "id": "kb_001",
+    "question": "¿Cómo buscar por tranid en el endpoint de facturas de compra de SAP?",
+    "answer": "Para buscar por tranid en SAP B1 usa el parámetro de query: GET https://api.getkonvex.com/core/api/purchases/invoices?tranid=${tranid} — El tranid es el ID que se ve en la interfaz visual de SAP.",
+    "source": "slack-rindegastos",
+    "confirmed": true,
+    "tags": ["sap", "tranid", "purchases", "invoices", "filtro"]
+  },
+  {
+    "id": "kb_002",
+    "question": "Error 504 timeout en SAP B1 aunque dejamos 15 segundos entre peticiones",
+    "answer": "El error 504 en SAP B1 puede tener dos causas: 1) IP de Konvex no whitelisteada en el firewall del cliente SAP — la más común. 2) Timeout real del servicio SAP cuando procesa muchos registros. Solución: pedir al cliente que whitelist la IP de Konvex en su firewall SAP. También verificar que x-db sea correcto y que x-url sea accesible desde fuera. Pedir el curl exacto para diagnosticar.",
+    "source": "slack-rindegastos",
+    "confirmed": true,
+    "tags": ["sap", "504", "timeout", "whitelist", "ip"]
+  },
+  {
+    "id": "kb_003",
+    "question": "El cliente SAP necesita saber la IP de Konvex para whitelist, el proveedor cloud y el país del servidor",
+    "answer": "Para clientes SAP que necesitan whitelist: escalar a Jorge para obtener la IP actual de Konvex, el proveedor de cloud y la región. Esta información es requerida por clientes SAP on-premise especialmente en Perú y Colombia.",
+    "source": "slack-rindegastos",
+    "confirmed": true,
+    "tags": ["sap", "ip", "whitelist", "cloud", "on-premise"]
+  },
+  {
+    "id": "kb_004",
+    "question": "Error EBUSY getaddrinfo en SAP — no resuelve el hostname del servidor",
+    "answer": "El error 'getaddrinfo EBUSY hostname' en SAP significa que Konvex no puede resolver el hostname del servidor SAP. Causas: 1) El servidor SAP está en red privada sin acceso externo. 2) El hostname no es resolvible públicamente. Solución: el cliente debe usar la IP pública del servidor en x-url o abrir acceso externo al hostname.",
+    "source": "slack-rindegastos",
+    "confirmed": true,
+    "tags": ["sap", "ebusy", "hostname", "dns", "red privada"]
+  },
+  {
+    "id": "kb_005",
+    "question": "¿Puedo buscar pagos por 'number' en el endpoint de vouchers además de por ID?",
+    "answer": "Sí. Para el endpoint de pagos/vouchers puedes buscar por number usando: GET https://api.getkonvex.com/core/api/payments/vouchers/{id} — Confirmar con Jorge si el endpoint específico lo soporta ya que depende del ERP del cliente.",
+    "source": "slack-rindegastos",
+    "confirmed": true,
+    "tags": ["pagos", "vouchers", "number", "filtro", "sap"]
+  },
+  {
+    "id": "kb_006",
+    "question": "Error 429 rate limit en Siigo al paginar, funciona en página 1 y 2 pero falla desde página 3",
+    "answer": "El error 429 de Siigo al paginar ocurre porque el sandbox de Konvex es compartido entre múltiples clientes — Siigo aplica rate limit global. En producción con clientes reales esto rara vez pasa. Si ocurre en producción, verificar si el cliente tiene otra integración activa con Siigo que esté consumiendo el rate limit. Solución: agregar retry con espera de 9 segundos al recibir 429, y no paginar en paralelo.",
+    "source": "slack-fonder",
+    "confirmed": true,
+    "tags": ["siigo", "429", "rate-limit", "paginacion", "sandbox"]
+  },
+  {
+    "id": "kb_007",
+    "question": "La paginación no es consistente entre endpoints — sales usa totalPages/hasNextPage y customers usa page_size/total_results",
+    "answer": "Es una inconsistencia conocida en la API de Konvex. Diferentes endpoints usan diferentes formatos de paginación según el conector. Solución para el cliente: detectar dinámicamente qué campos de paginación vienen en cada respuesta y manejar ambos formatos. Reportar como issue de producto para normalización futura.",
+    "source": "slack-fonder",
+    "confirmed": true,
+    "tags": ["paginacion", "inconsistencia", "totalPages", "page_size", "bug"]
+  },
+  {
+    "id": "kb_008",
+    "question": "El cliente no puede ver sus empresas en producción, aparece sin suscripción y sin empresas en prod después de un cambio en la plataforma",
+    "answer": "Konvex migró a v2 de la plataforma. Solución inmediata: en el menú lateral de la plataforma hacer click en 'Platform v1' para acceder a la versión anterior mientras el cliente se adapta a la v2. Jorge puede resetear el password si es necesario.",
+    "source": "slack-fonder",
+    "confirmed": true,
+    "tags": ["plataforma", "v2", "empresas", "produccion", "suscripcion", "migracion"]
+  },
+  {
+    "id": "kb_009",
+    "question": "El campo invoice_line_ids de Odoo dejó de venir expandido, ahora solo viene con IDs",
+    "answer": "Si invoice_line_ids de Odoo pasó de venir con detalle completo a solo IDs, es un cambio en el conector interno de Konvex. Escalar inmediatamente a Jorge porque requiere revisión técnica interna del conector de Odoo. Mientras tanto el cliente puede hacer llamadas relacionales adicionales por cada ID.",
+    "source": "slack-fonder",
+    "confirmed": true,
+    "tags": ["odoo", "invoice_line_ids", "expand", "conector", "cambio"]
+  },
+  {
+    "id": "kb_010",
+    "question": "Error 500 en Siigo en el endpoint de vouchers-list, Cannot read properties of undefined reading map",
+    "answer": "El error 500 en payments/vouchers-list con 'Cannot read properties of undefined (reading map)' es un bug interno del conector de Siigo en Konvex. Escalar a Jorge con el curl exacto del endpoint para que revise y corrija el conector.",
+    "source": "slack-fonder",
+    "confirmed": true,
+    "tags": ["siigo", "500", "vouchers", "bug", "conector"]
+  },
+  {
+    "id": "kb_011",
+    "question": "La paginación del endpoint de invoices de Siigo no funciona — page=2 devuelve los mismos registros que page=1",
+    "answer": "Bug de paginación en invoices de Siigo — el parámetro page no aplica correctamente el offset. Escalar a Jorge con el curl exacto. El endpoint de purchases/invoices sí pagina correctamente. El bug es específico del endpoint de ventas de Siigo.",
+    "source": "slack-fonder",
+    "confirmed": true,
+    "tags": ["siigo", "paginacion", "bug", "invoices", "page"]
+  },
+  {
+    "id": "kb_012",
+    "question": "¿Dynamics 365 Business Central está operativo en Konvex?",
+    "answer": "Sí, Dynamics 365 Business Central está operativo en Konvex. El proceso de integración es el mismo que con Siigo, Alegra, NetSuite, Odoo y SAP B1 — mismo mapeo de endpoints. Contactar a Jorge para detalles específicos de configuración.",
+    "source": "slack-fonder",
+    "confirmed": true,
+    "tags": ["dynamics", "dynamics365", "business-central", "operativo"]
+  },
+  {
+    "id": "kb_013",
+    "question": "Al crear factura en NetSuite la respuesta viene con data vacía: { status: 200, data: '', pagination: {} }",
+    "answer": "NetSuite devuelve data vacío en el POST de creación — es comportamiento esperado de NetSuite, no un bug de Konvex. Para obtener el internalId o tranid de la factura creada, hacer un GET posterior buscando por: número externo, referencia, monto+fecha+cliente, o externalId enviado. NetSuite no devuelve el objeto completo en el response del POST.",
+    "source": "slack-gigstack",
+    "confirmed": true,
+    "tags": ["netsuite", "create", "data-vacio", "internalId", "tranid", "post"]
+  },
+  {
+    "id": "kb_014",
+    "question": "Al crear customer en NetSuite ¿qué campos son obligatorios?",
+    "answer": "Para crear customer en NetSuite es obligatorio enviar netsuite.fullname. Ejemplo: { person_type: 'Person', name: 'JUAN', netsuite: { subsidiary: { id: '2' }, companyname: 'JUAN CARLOS', entityid: 'JUAN CARLOS', fullname: 'JUAN CARLOS NIÑO 80240414' } }. NetSuite no devuelve el objeto creado por defecto — Konvex usa el fullname para recuperar el resultado.",
+    "source": "slack-gigstack",
+    "confirmed": true,
+    "tags": ["netsuite", "customer", "create", "fullname", "obligatorio"]
+  },
+  {
+    "id": "kb_015",
+    "question": "Error 400 ERR_BAD_RESPONSE con Odoo y en el portal aparece Not Available en companies",
+    "answer": "Cuando Odoo da 400 con ERR_BAD_RESPONSE y el portal muestra Not Available en companies: 1) Verificar x-db — nombre de base de datos incorrecto. 2) Verificar x-url — debe ser accesible públicamente. 3) Verificar permisos del usuario en Odoo. 4) Si es on-premise, confirmar IP de Konvex whitelisteada. El 400 con status 500 interno significa que Konvex llegó a Odoo pero Odoo respondió con error interno.",
+    "source": "slack-aindez",
+    "confirmed": true,
+    "tags": ["odoo", "400", "500", "ERR_BAD_RESPONSE", "companies", "not-available"]
+  },
+  {
+    "id": "kb_016",
+    "question": "¿Cómo conectar a Alegra desde el portal de Konvex?",
+    "answer": "Para conectar Alegra en Konvex: contactar a Jorge para que comparta los ejemplos de curl del sandbox de Alegra. Konvex soporta Alegra con los endpoints estándar de invoices, customers y payments. El proceso de onboarding incluye una sesión técnica de 30 min.",
+    "source": "slack-aindez",
+    "confirmed": true,
+    "tags": ["alegra", "conexion", "onboarding", "sandbox"]
+  },
+  {
+    "id": "kb_017",
+    "question": "Siigo ya no permite combinar pagos de contado y crédito en la misma factura",
+    "answer": "Siigo actualizó su política: ya no es posible combinar pagos de contado y crédito en una misma factura. Cada factura debe registrarse con un único medio de pago. No es necesario cambiar la integración con Konvex API — la operación continúa con normalidad desde Konvex. El cliente debe ajustar su flujo interno para enviar facturas con un solo tipo de pago.",
+    "source": "slack-nexxdi",
+    "confirmed": true,
+    "tags": ["siigo", "pago", "contado", "credito", "politica", "factura"]
+  },
+  {
+    "id": "kb_018",
+    "question": "¿Cómo pasar a producción? ¿Es el mismo token o cambia?",
+    "answer": "Para pasar a producción en Konvex: es el mismo x-secret que tienes en desarrollo. Solo debes cambiar x-testing de true a false (o simplemente no enviarlo). El connection_id también se mantiene el mismo. Si necesitas un nuevo connection_id de producción, contactar a Jorge.",
+    "source": "slack-nexxdi",
+    "confirmed": true,
+    "tags": ["produccion", "x-testing", "x-secret", "connection-id", "ambiente"]
+  },
+  {
+    "id": "kb_019",
+    "question": "SAP Journal Entries falla con ShortName — el campo ShortName no está siendo procesado correctamente",
+    "answer": "En SAP B1 journal entries el campo ShortName corresponde al business partner code. Debe ser un código válido existente en SAP. Si ShortName no existe en SAP el asiento falla. Verificar con el cliente que los ShortName enviados corresponden a business partners activos en su SAP.",
+    "source": "slack-rindegastos",
+    "confirmed": true,
+    "tags": ["sap", "journal-entries", "ShortName", "business-partner", "asientos"]
+  },
+  {
+    "id": "kb_020",
+    "question": "¿Cómo crear journal entries en SAP B1 a través de Konvex?",
+    "answer": "Para crear journal entries en SAP B1 usar: POST https://api.getkonvex.com/core/api/payroll/journal-entries con header x-software: sap. El payload incluye: Memo, JournalEntryLines (con ShortName o AccountCode, Debit, Credit, LineMemo, ProjectCode), y objeto sap con Reference y Reference2. ShortName es el business partner code en SAP.",
+    "source": "slack-rindegastos",
+    "confirmed": true,
+    "tags": ["sap", "journal-entries", "asientos", "create", "payload"]
+  },
+  {
+    "id": "kb_021",
+    "question": "El endpoint se queda cargando en Postman sin devolver error cuando las credenciales pueden estar mal",
+    "answer": "Cuando el endpoint de SAP se queda cargando sin respuesta en Postman: 1) El x-url apunta a una IP privada (como 192.168.x.x) que no es accesible desde Konvex. 2) El servidor SAP está detrás de firewall y bloquea silenciosamente. Solución: verificar que x-url use IP/hostname público. Si es red privada, el cliente debe abrir el puerto SAP (generalmente 50000) hacia la IP de Konvex.",
+    "source": "slack-rindegastos",
+    "confirmed": true,
+    "tags": ["sap", "timeout", "ip-privada", "firewall", "postman", "cargando"]
+  },
+  {
+    "id": "kb_022",
+    "question": "¿Qué documentos de Siigo se crean como facturas de proveedor, pagos efectuados o pagos recibidos?",
+    "answer": "En Siigo vía Konvex: documentos sustentados → facturas de proveedor (purchases/invoices). Documentos no sustentados → pagos efectuados (payments). Devoluciones → pagos recibidos (incoming payments). El tipo de documento determina el endpoint a usar en Konvex.",
+    "source": "slack-rindegastos",
+    "confirmed": true,
+    "tags": ["siigo", "facturas-proveedor", "pagos", "devoluciones", "tipo-documento"]
+  },
+  {
+    "id": "kb_023",
+    "question": "¿Hay información contable de qué pasa en Odoo cuando se impacta un pago en una factura?",
+    "answer": "Cuando en Odoo se asigna un pago a una factura de ventas y se marca como cobrada: contablemente se crea un journal entry que debita la cuenta de cuentas por cobrar y acredita la cuenta de caja/banco. El estado de la factura cambia a 'paid'. Para ver el detalle contable exacto de cada cliente, revisar el plan de cuentas configurado en ese Odoo específico.",
+    "source": "slack-fonder",
+    "confirmed": true,
+    "tags": ["odoo", "pagos", "contabilidad", "journal-entry", "facturas"]
+  }
+]

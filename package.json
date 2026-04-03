@@ -1,0 +1,15 @@
+{
+  "name": "konvex-ai-bot",
+  "version": "1.0.0",
+  "description": "Konvex AI - Internal Slack support assistant powered by Azure OpenAI",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "ingest": "node ingest-slack.js"
+  },
+  "dependencies": {
+    "@slack/bolt": "^3.17.0",
+    "dotenv": "^16.4.5",
+    "openai": "^4.52.0"
+  }
+}
